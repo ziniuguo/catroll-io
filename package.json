@@ -1,6 +1,6 @@
 {
-  "name": "starter-blog",
-  "version": "0.0.1",
+  "name": "catroll-io",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "start": "next dev",
