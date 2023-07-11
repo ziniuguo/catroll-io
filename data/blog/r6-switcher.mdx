@@ -1,0 +1,27 @@
+---
+title: Rainbow Six Siege Steam/Uplay Version Switcher
+date: '2023-07-11'
+tags: ['Java', 'R6']
+draft: false
+authors: ['default']
+summary: A desktop app that helps you switch Rainbow Six Siege installed game version.
+---
+
+A simple switcher made for R6 gamers.
+
+![switcher](/static/images/switcher.png)
+
+## Why is this app necessary?
+
+Some or you (including me) have purchased both Steam and Uplay version of this game. However, the game files are almost the same except for one defaultargs.dll preventing you from launching the game of the other version. This app takes the two defaultargs.dll files from the official Steam and Uplay games, allowing you to switch between two versions seamlessly.
+
+## What's new?
+
+The older version keeps those two defaultargs.dll files as hardcoded static resources which may become invalid after game updates. Now, you only need to reset to fetch the newer files after upgrading the game, instead of waiting for developers to fix the switcher.
+
+## Why Java?
+
+I haven't learned .NET and I hate electron. I like Minecraft Java Edition.
+
+## Anything else I can do with this app?
+Yes. The two defaultargs.dll files of the current versions are provided in the release section. If something goes wrong, just reset it manually by copy pasting the dlls to ```%HOME%/AppData/Local/SwitcherByCatRoll``` and your game installation folder.
