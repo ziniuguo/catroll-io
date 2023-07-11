@@ -28,6 +28,12 @@ export default function Home({ posts }) {
           <p className="text-lg leading-7 text-gray-500 dark:text-gray-400">
             {siteMetadata.description}
           </p>
+          <p className="text-sm leading-7 text-gray-500 dark:text-gray-400">
+            More than coding.
+          </p>
+          <p className="text-sm leading-7 text-gray-500 dark:text-gray-400">
+            I share my tech discoveries and random shower thoughts here :)
+          </p>
         </div>
         <ul className="divide-y divide-gray-200 dark:divide-gray-700">
           {!posts.length && 'No posts found.'}

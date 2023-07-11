@@ -3,9 +3,9 @@
 /** @type {import("pliny/config").PlinyConfig } */
 const siteMetadata = {
   title: "CatRoll's Cattery",
-  author: 'Ziniu Guo',
+  author: 'CatRoll',
   headerTitle: "CatRoll's Cattery",
-  description: 'I share my technical discoveries and random shower thoughts here',
+  description: 'Software | Web | AI | Techs',
   language: 'en-us',
   theme: 'system', // system, dark or light
   siteUrl: 'https://catroll.io',
