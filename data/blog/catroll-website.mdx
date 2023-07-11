@@ -75,10 +75,10 @@ You won't want to simply start your application via CLI and leave it there 24/7,
 
 Now, cd into your project directory, use the below command:
 ```
-pm2 start "npm run serve" --name app1 --watch
+pm2 start "npm run serve" --name app1
 ```
 
-Replace `npm run serve` with your own command that starts the application, and `app1` with your preferred name to appear in PM2 process list. The `--watch` flag watches any file changes in this directory and will restart the process on file change (though it won't be that useful as you need to build first).
+Replace `npm run serve` with your own command that starts the application, and `app1` with your preferred name to appear in PM2 process list.
 
 Now, enter the IPv4 address of your server with the port number your Node.js web application runs on (practically it is 3000) in the browser, and you should be able to see your page (If your server have NGINX pre-configured, just head to the 80 port).
 
