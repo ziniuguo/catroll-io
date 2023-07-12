@@ -7,7 +7,7 @@ const siteMetadata = {
   headerTitle: "CatRoll's Cattery",
   description: 'Software | Web | AI | Techs',
   language: 'en-us',
-  theme: 'system', // system, dark or light
+  theme: 'dark', // system, dark or light
   siteUrl: 'https://catroll.io',
   siteRepo: 'https://github.com/ziniuguo/catroll-io',
   siteLogo: '/static/images/logo.png',
