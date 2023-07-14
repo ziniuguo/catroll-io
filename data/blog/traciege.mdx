@@ -7,36 +7,64 @@ authors: ['default']
 summary: "I want to know my performance, so I've made this app that sends me email every day."
 ---
 
-[GitHub repo](https://github.com/ziniuguo/traciege)
+[-> The Traciege App](/traciege-app)
 
-[Click me to subscribe](/traciege-app)
+[-> GitHub repo](https://github.com/ziniuguo/traciege)
 
-## This is a WIP project
+## --- This is a WIP project ---
 
 ![traciege-console](/static/images/traciege/traciege-console.png)
 
 ## What it does:
 
-It automatically sends you email every day about your siege stats (if any).
+- It automatically sends you email every day about your siege stats (if any).
+- It keeps updating your siege stats match by match, instead of updating when you make requests.
 
-## Some available APIs:
+## Tech Specs
 
-- `143.198.210.184:8964/status` check whether it is up and running
+### Frontend
 
-- `143.198.210.184:8964/register?name=yourgamertag&email=youremail&platform=uplayorxblorpsn` subscribe and get daily email updates
+Single page web app
+ - HTTPS website - only allowed to make HTTPS API calls to backend
 
-- `143.198.210.184:8964/dereg` same query params, not finished yet
+### Backend (node.js express)
 
-### TODO:
+- Plain node.js express server, `143.198.210.184`, no NGINX
 
-#### frontend:
+- SSL Cert - certbot for `api.catroll.io`:
 
-- [ ] write docs
-- [x] open for registration, post reg info to backend api
+```javascript
+import https from "https";
+import express from "express";
 
-#### backend:
+const key = fs.readFileSync('/etc/letsencrypt/live/api.catroll.io/privkey.pem');
+const cert = fs.readFileSync('/etc/letsencrypt/live/api.catroll.io/fullchain.pem');
+const options = { key: key, cert: cert };
+const app = express();
+const server = https.createServer(options, app);
+server.listen(port, () => {
+    console.log(`listening on port ${port}`);
+})
+```
 
-- [ ] validation when register
-- [ ] store by email rather than id
-- [ ] business logic: check daily update
+- CORS (expected)
+```javascript
+import cors from "cors";
+
+app.use(cors({ origin: 'https://catroll.io' }))
+```
+
+#### Some available APIs:
+
+- `/status` check whether it is up and running
+- `/register` GET request - subscribe and get daily email updates
+
+  | Param    | Description     |
+  |----------|-----------------|
+  | name     | your username   |
+  | email    | your email addr |
+  | platform | uplay/xbl/psn   |
+
+- `/dereg` same query params, not finished yet
+
 
