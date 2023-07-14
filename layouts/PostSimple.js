@@ -10,6 +10,7 @@ import ScrollTopAndComment from '@/components/ScrollTopAndComment'
 export default function PostLayout({ content, next, prev, children }) {
   const [loadComments, setLoadComments] = useState(false)
   const { path, slug, date, title } = content
+  const basePath = path.split('/')[0]
   return (
     <SectionContainer>
       <BlogSEO url={`${siteMetadata.siteUrl}/${path}`} {...content} />
@@ -67,6 +68,15 @@ export default function PostLayout({ content, next, prev, children }) {
                     </Link>
                   </div>
                 )}
+              </div>
+              <div className="pt-4 xl:pt-8">
+                <Link
+                  href={`/${basePath}`}
+                  className="text-primary-500 hover:text-primary-600 dark:hover:text-primary-400"
+                  aria-label="Back to the blog"
+                >
+                  &larr; Back to the blog
+                </Link>
               </div>
             </footer>
           </div>
