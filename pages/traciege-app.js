@@ -75,7 +75,7 @@ export default function TraciegeApp() {
             onClick={async function () {
               setBtn(false)
               const res = await fetch(
-                'https://api.catroll.io:8964/register?name=' +
+                'https://api.catroll.io:8964/sub?name=' +
                   name +
                   '&email=' +
                   email +
