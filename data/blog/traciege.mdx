@@ -4,7 +4,7 @@ date: '2023-06-25'
 tags: ['javascript', 'node.js', 'R6']
 draft: false
 authors: ['default']
-summary: "I want to know my performance, so I've made this app that sends me email every day."
+summary: "I want to know my performance, so I've made this app to keep my stats being updated."
 ---
 
 [-> The Traciege App](/traciege-app)
@@ -52,6 +52,27 @@ server.listen(port, () => {
 import cors from "cors";
 
 app.use(cors({ origin: 'https://catroll.io' }))
+```
+
+- storage (MongoDB - Mongoose)
+
+```
+test> use traciege
+switched to db traciege
+traciege> db
+traciege
+traciege> show collections
+players
+traciege> db.players.find()
+[
+  {
+    _id: ObjectId("64b28170daa071bda4151002"),
+    email: 'd1egova2quedivz@gmail.com',
+    platform: 'uplay',
+    id: '62dc7797-819d-41f3-a48b-e2741228fbb1',
+    __v: 0
+  }
+]
 ```
 
 #### Some available APIs:

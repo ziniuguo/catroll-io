@@ -1,0 +1,96 @@
+---
+title: "How to Use MongoDB in Node.js with Mongoose"
+date: '2023-05-17'
+tags: ['mongodb', 'node.js', 'mongoose', 'javascript']
+draft: false
+authors: ['default']
+summary: "Use, Mongoose, an Object Data Modeling (ODM) library for Node.js and MongoDB."
+---
+
+## Step 1: Install MongoDB
+
+Refer to:
+
+https://www.mongodb.com/try/download/community
+
+https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/
+
+https://www.digitalocean.com/community/tutorials/how-to-install-mongodb-on-ubuntu-20-04
+
+For windows, additionally, you can install the GUI - MongoDB Compass as well
+
+## Step 2: Install Mongoose
+
+```
+npm install mongoose
+```
+
+## Step 3: Connect
+
+```javascript
+import mongoose from "mongoose";
+
+// db
+const mongooseUri = "mongodb://127.0.0.1:27017/yourDbName"
+await mongoose.connect(mongooseUri);
+```
+
+## Step 4: Create schema and model
+
+```javascript
+// example
+
+// schema
+const UserSchema = new mongoose.Schema({
+    email: {type: String, required: true, unique: true},
+    password: {type: String, required: true},
+    createdAt: {type: Date, expires: '3m', default: Date.now}
+});
+
+// model
+import bcrypt from "bcryptjs";
+const saltRound = 12345;
+UserSchema.pre('save', function (next) {
+    // Check if document is new or a new password has been set
+    if (this.isNew || this.isModified('password')) {
+        // Saving reference to this because of changing scopes
+        const document = this;
+        bcrypt.hash(document.password, saltRounds,
+            function (err, hashedPassword) {
+                if (err) {
+                    next(err);
+                } else {
+                    document.password = hashedPassword;
+                    next();
+                }
+            });
+    } else {
+        next();
+    }
+});
+
+// methods of model
+UserSchema.methods.isCorrectPassword = function (password, callback) {
+    bcrypt.compare(password, this.password, function (err, same) {
+        if (err) {
+            callback(err);
+        } else {
+            callback(err, same);
+        }
+    });
+}
+
+export const User = mongoose.model('User', PlayerSchema);
+```
+
+## Step 5: Usage
+
+```javascript
+// save
+const newUser = new User({email: "example@email.com", password: "pwd"});
+await newUser.save();
+// find
+const result = await User.findOne({email});
+// delete
+await User.deleteOne({email});
+```
