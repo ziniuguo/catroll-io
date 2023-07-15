@@ -6,6 +6,7 @@ export default function TraciegeApp() {
   const [email, setEmail] = useState('example@email.com')
   const [name, setName] = useState('name.Team')
   const [platform, setPlatform] = useState('uplay')
+  const [btn, setBtn] = useState(true)
   return (
     <>
       <PageSEO title={`Projects - ${siteMetadata.author}`} description={siteMetadata.description} />
@@ -70,7 +71,9 @@ export default function TraciegeApp() {
           <br />
           <br />
           <button
+            disabled={!btn}
             onClick={async function () {
+              setBtn(false)
               const res = await fetch(
                 'https://api.catroll.io:8964/register?name=' +
                   name +
@@ -87,12 +90,15 @@ export default function TraciegeApp() {
               } else if (res.status === 500) {
                 alert('Failed. Please try again later')
               } else if (res.status === 422) {
-                alert('Failed to find your email address')
+                alert('Failed to send email. Wrong email address?')
+              } else if (res.status === 409) {
+                alert('You have already subscribed')
               }
+              setBtn(true)
             }}
             className="focus:shadow-outline-blue inline rounded-lg border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium leading-5 text-white shadow transition-colors duration-150 hover:bg-blue-700 focus:outline-none dark:hover:bg-blue-500"
           >
-            subscribe
+            {btn ? 'subscribe' : 'processing...'}
           </button>
         </div>
       </div>
