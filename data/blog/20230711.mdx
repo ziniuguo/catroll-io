@@ -1,0 +1,203 @@
+---
+title: Deploy Node.js Web App with NGINX and PM2 on Linux Server with a Domain
+date: '2023-07-11'
+tags: ['react.js', 'next.js', 'node.js', 'javascript']
+draft: false
+summary: 'In this article, we deploy Next.js web application on Ubuntu server with a custom domain, using PM2 and NGINX.'
+authors: ['default']
+---
+
+# Introduction
+
+In this article I will introduce how to set up your personal blog website from scratch, and explain most of the concepts you need to know about web development in layman language.
+
+## Step 1: Build your web app locally
+
+There are so many ways of building a website and eventually the page you visit will end up being an HTML file. Some blog/portfolio website use static hosting, while some of them are dynamic.
+
+### Static hosting
+
+For static hosting, you are actually visiting static HTML files hosted on a server, probably along with some simple CSS/JavaScript files. The logic is rather simple and is perfectly suitable for beginners to write up an HTML page for practice purpose.
+
+My [very old portfolio repo](https://github.com/ziniuguo/ziniuguo.github.io/tree/gh-pages), which is no longer maintained and visible, is a perfect example. It simply starts with an index.html file, and uses bootstrap as its CSS styling. There are probably also simple JavaScript to make the website interactive, but its functionality is still very much limited.
+
+![very old portfolio img](/static/images/20230711/old-portfolio.png)
+
+In this article I will introduce how to build dynamic hosting website instead.
+
+### Dynamic hosting
+
+If you are into web development, you may have already known that there are many kinds of dynamic hosting and there are frameworks like Flask, Django, React.js, Java SpringBoot which may all be used for web development, either frontend or backend. In this article I will introduce a very simple one of them, React.js.
+
+First, you need to initialise a React.js (or any Node.js project, if you prefer to do so) project. I am using a Next.js blog template for this website, but you can choose whatever you want to use. After you initialise your project successfully, you should have a folder containing a `package.json` file.
+
+Check it out, it should contain similar scripts.
+
+![npm-scripts](/static/images/20230711/npm-scripts.png)
+
+Try the dev command out, and see whether you can access the website on localhost. If you see the hello world page, you have successfully built your website locally. Move to step 2.
+
+### What is frontend/backend on earth in layman language?
+
+If you are confused with frontend/backend thing, let me get it straight to you.
+
+I will take this project as an example. How it works? The website (React.js) is hosted on a server, but is rendered on visitors' browser. Meanwhile, there are other backend APIs that the React.js project may call on another server. So it basically looks like this:
+
+![workflow](/static/images/20230711/workflow.png)
+
+In the second circle, the server itself, hosting React.js can be considered both frontend and backend. It can be considered as frontend as it is a Node.js server that returns webpages after users' browsers make request, as well as backend since it hosts something on Node.js. It may also be considered as a middleware layer service as it makes API calls to another server.
+
+There is no clear difference between frontend, backend, and middleware layer. Practically people name services that returns something users can visually see as frontend, and hidden APIs like blackboxes that are called by frontend as backend. However, the system can be very much complicated and a service can be deployed either on frontend and backend.
+
+## Step 2: Get yourself a server
+
+There are lots of places where your can rent a server. I got mine here:
+
+[![DigitalOcean Referral Badge](https://web-platforms.sfo2.digitaloceanspaces.com/WWW/Badge%203.svg)](https://www.digitalocean.com/?refcode=93c4e3210f05&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge)
+
+![server-specs](/static/images/20230711/server-specs.png)
+
+The server I rent is optimised for web development and has Node.js, npm and NGINX pre-installed. If not, you can do it manually.
+
+## Step 3: Get the project uploaded on your server
+
+There are many ways of doing it. Two ways I recommend are to use Git and SFTP. You can find your own ways as well.
+
+![server-tree](/static/images/20230711/server-tree.png)
+
+After uploading it successfully on your server, cd into your directory (`catroll-io` in this example), run the necessary npm commands such as `npm install`, and make sure everything is runnable and bug-free.
+
+Then, build it with `npm run build`.
+
+## Step 4: Configure daemon process manager
+
+You won't want to simply start your application via CLI and leave it there 24/7, and that's why [PM2](https://pm2.keymetrics.io/) is needed. PM2 is a daemon process manager that will help you manage and keep your application online. You may also use other process manager.
+
+Now, cd into your project directory, use the below command:
+```
+pm2 start "npm run serve" --name app1
+```
+
+Replace `npm run serve` with your own command that starts the application, and `app1` with your preferred name to appear in PM2 process list.
+
+Now, enter the IPv4 address of your server with the port number your Node.js web application runs on (practically it is 3000) in the browser, and you should be able to see your page (If your server have NGINX pre-configured, just head to the 80 port).
+
+![ip-3000](/static/images/20230711/ip-3000.png)
+
+Great, now your website is visible to public.
+
+## Step 5: Get a domain name
+
+I bought my catroll.io domain on Google Domains, and there are other providers.
+
+Add custom DNS records so that the domain points to the IPv4 address of your server.
+
+![custom-dns](/static/images/20230711/custom-dns.png)
+
+It may take a while to take effect. You can use [this website](https://www.whatsmydns.net/) to check its readiness.
+
+## Step 6: Configure NGINX and certificate
+
+HTTP port is 80 and HTTPS port is 443. Most websites use NGINX reverse proxy to hide the original port that the web application is running on. Instead, NGINX handles it and let the user access the web application through port 80 or 433.
+
+![nginx-cert-setup](/static/images/20230711/nginx-cert-setup.png)
+
+Since my server has NGINX pre-configured, I can skip this.
+
+After that, use [Certbot](https://certbot.eff.org/) to generate certificate for your website.
+
+```
+sudo certbot --nginx
+```
+
+Certbot will edit your NGINX configuration automatically to serve it, turning on HTTPS access in a single step.
+
+Then, restart NGINX:
+
+```
+sudo systemctl restart nginx
+```
+
+For me, I did something different. First, I want to remove the "www" from the domain. Second, I want my website to redirect to HTTPS 443 if it gets HTTP 80 requests. Thus, I have my NGINX configured like this:
+
+```
+server {
+# https://catroll.io
+        root /var/www/html;
+
+        index index.html index.htm index.nginx-debian.html;
+        server_name catroll.io;
+
+        location ^~ /assets/ {
+                gzip_static on;
+                expires 12h;
+                add_header Cache-Control public;
+        }
+
+        location / {
+                proxy_http_version 1.1;
+                proxy_cache_bypass $http_upgrade;
+
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+
+                proxy_pass http://localhost:3000;
+        }
+
+        listen [::]:443 ssl ipv6only=on;
+        listen 443 ssl; # managed by Certbot
+        ssl_certificate /etc/letsencrypt/live/catroll.io/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/catroll.io/privkey.pem;
+        include /etc/letsencrypt/options-ssl-nginx.conf;
+        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}
+server {
+# http://catroll.io -> https://catroll.io
+        if ($host = catroll.io) {
+            return 301 https://$host$request_uri;
+        }
+        listen 80 ;
+        listen [::]:80 ;
+        server_name catroll.io;
+        return 404;
+}
+server {
+# https://www.catroll.io -> https://catroll.io
+# the certificate for www.catroll.io is still there, anyway
+        root /var/www/html;
+
+        index index.html index.htm index.nginx-debian.html;
+        server_name www.catroll.io;
+
+        listen [::]:443 ssl; # managed by Certbot
+        listen 443 ssl; # managed by Certbot
+        ssl_certificate /etc/letsencrypt/live/www.catroll.io/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/www.catroll.io/privkey.pem;
+        include /etc/letsencrypt/options-ssl-nginx.conf;
+        ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+        return 301 https://catroll.io$request_uri;
+}
+server {
+# http://www.catroll.io -> https://catroll.io
+        if ($host = www.catroll.io) {
+            return 301 https://catroll.io$request_uri;
+        }
+        listen 80 ;
+        listen [::]:80 ;
+        server_name www.catroll.io;
+        return 404;
+}
+```
+
+Consider the 4 websites below:
+
+1. http://www.catroll.io/
+2. https://www.catroll.io/
+3. http://catroll.io/
+4. https://catroll.io/
+
+They all end up being https://catroll.io/ now!
